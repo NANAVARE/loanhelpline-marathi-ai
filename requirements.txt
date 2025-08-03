@@ -1,6 +1,6 @@
 requests
 python-dotenv
 openai
-googletrans==4.0.0-rc1
 langchain==0.1.13
 langchain-community==0.0.33
+deep-translator==1.11.4

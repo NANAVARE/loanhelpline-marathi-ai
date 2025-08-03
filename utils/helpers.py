@@ -1,22 +1,20 @@
-# utils/helpers.py
-
 import re
-from googletrans import Translator
-
-translator = Translator()
+from deep_translator import GoogleTranslator
 
 def translate_to_marathi(text, direction="mr"):
     """
-    Google Translate वापरून भाषांतर करते.
+    Google Translator वापरून भाषांतर करते.
     direction="mr" म्हणजे इंग्रजी → मराठी, "en" म्हणजे मराठी → इंग्रजी
     """
     if not text:
         return ""
+
+    source_lang = "en" if direction == "mr" else "mr"
+    target_lang = "mr" if direction == "mr" else "en"
     
-    dest_lang = "mr" if direction == "mr" else "en"
     try:
-        translated = translator.translate(text, dest=dest_lang)
-        return translated.text
+        translated = GoogleTranslator(source=source_lang, target=target_lang).translate(text)
+        return translated
     except Exception as e:
         print(f"⚠️ भाषांतर त्रुटी: {e}")
         return text  # fallback: original text
