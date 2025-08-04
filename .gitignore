@@ -1,2 +1,19 @@
-firebase_key.json 
-firebase_key.json 
+# 🔐 Secrets
+.env
+firebase_key.json
+
+# 🧪 Virtual environment
+env/
+
+# 🗑 Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 🌐 OS-specific files
+.DS_Store
+Thumbs.db
+
+# 🧪 Test files
+test_env.py
+
