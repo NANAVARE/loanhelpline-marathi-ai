@@ -1,53 +1,56 @@
-import os
-from agents.web_ai_agent import WebAIAgent
-from agents.seo_agent import SEOAgent
-from agents.wordpress_rest_agent import WordPressRestAgent
-from agents.auto_update_agent import AutoUpdateAgent
-from agents.firebase_connector import FirebaseConnector
+from agents.bank_data_agent import BankDataAgent
+from agents.csv_loan_agent import CSVLoanRateAgent
 from agents.bank_rate_ai_agent import BankRateAIAgent
-from agents.site_builder_ai_agent import SiteBuilderAIAgent
+from agents.wordpress_rest_agent import WordPressRestAgent
+from agents.seo_agent import SEOAgent
+from agents.firebase_connector import FirebaseConnector
+from agents.web_ai_agent import WebAIAgent
 
-# 🧠 Agent Initialization
-web_ai = WebAIAgent()
-seo = SEOAgent()
-wp = WordPressRestAgent()
-auto_update = AutoUpdateAgent()
-firebase = FirebaseConnector()
-bank_ai = BankRateAIAgent()
-site_builder = SiteBuilderAIAgent()
+def run_full_pipeline():
+    print("🚀 LoanBot Pipeline सुरू झाला...")
 
-# ✅ Step 1: HTML फाईल्स तयार करा
-web_ai.generate_loan_rates()
-web_ai.generate_lead_form()
+    # STEP 1: बँक दर गोळा करा
+    print("\n📊 [Step 1] बँक दर गोळा करत आहे...")
+    bank_data_agent = BankDataAgent()
+    bank_data_agent.run()
 
-# ✅ Step 2: SEO Metadata तयार करा
-meta = seo.generate_meta("गृहकर्ज सल्ला 2025")
+    # STEP 2: CSV → HTML टेबल
+    print("\n📝 [Step 2] HTML टेबल तयार करत आहे...")
+    csv_agent = CSVLoanRateAgent()
+    csv_agent.generate_html_from_csv()
 
-# ✅ Step 3: WordPress वर loan_rates पोस्ट करा
-wp.publish_post_from_file(
-    file_path="output/loan_rates.html",
-    title="📊 लोन दर माहिती",
-    meta=meta
-)
+    # STEP 3: AI आधारित पोस्ट तयार करा
+    print("\n✍️ [Step 3] AI HTML पोस्ट तयार करत आहे...")
+    ai_agent = BankRateAIAgent()
+    ai_agent.generate_html_from_csv("data/loan_rates.csv")
 
-# ✅ Step 4: WordPress वर lead_form पोस्ट करा
-wp.publish_post_from_file(
-    file_path="output/lead_form.html",
-    title="💼 लोन लीड फॉर्म",
-    meta=meta
-)
+    # STEP 4: SEO meta tags जोडा
+    print("\n🔍 [Step 4] SEO meta data जोडत आहे...")
+    seo_agent = SEOAgent()
+    seo_agent.add_meta_tags("output/generated_loan_rates.html")
 
-# ✅ Step 5: CSV वरून बँक दर HTML तयार करा (जर CSV फाईल अस्तित्वात असेल)
-csv_path = "data/loan_rates_data.csv"
-if os.path.exists(csv_path):
-    bank_ai.generate_html_from_csv(csv_path)
-else:
-    print(f"⚠️ CSV फाईल सापडली नाही: {csv_path}")
+    # STEP 5: WordPress वर पोस्ट करा
+    print("\n🌐 [Step 5] WordPress वर पोस्ट करत आहे...")
+    wp_agent = WordPressRestAgent()
+    wp_agent.publish_post_from_file(
+        file_path="output/generated_loan_rates.html",
+        title="आजचे गृहकर्ज व्याजदर - मराठीत",
+        meta=None,
+        tags=["गृहकर्ज", "Home Loan", "Loan Rates", "मराठी"],
+        categories=["Loan Rates"]
+    )
 
-# ✅ Step 6: Auto Site Structure तयार करा
-site_builder.generate_home_page()
+    # STEP 6: Firebase ला Lead Form टाका
+    print("\n🔥 [Step 6] Firebase ला Lead Form टाकत आहे...")
+    firebase = FirebaseConnector()
+    firebase.push_lead_form("output/lead_form.html")
 
-# Optional: Auto Site Tree बनवायचं असल्यास uncomment करा
-# site_builder.auto_generate_site_structure()
+    # STEP 7: मुख्यपृष्ठ तयार करा
+    print("\n🏠 [Step 7] मुख्यपृष्ठ तयार करत आहे...")
+    web_builder = WebAIAgent()
+    web_builder.generate_homepage()
 
-print("🎯 LoanBot Agent सर्व कार्य पूर्ण ✅")
+    print("\n🎯 LoanBot Agent सर्व कार्य पूर्ण ✅")
+
+if __name__ == "__main__":
+    run_full_pipeline()

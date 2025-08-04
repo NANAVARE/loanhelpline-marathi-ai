@@ -1,23 +1,42 @@
 import os
 import json
-import requests
+import firebase_admin
+from firebase_admin import credentials, db
 from dotenv import load_dotenv
 
 load_dotenv()
 
-FIREBASE_URL = os.getenv("FIREBASE_URL")  # Example: https://your-project.firebaseio.com/leads.json
-
 class FirebaseConnector:
     def __init__(self):
-        self.url = FIREBASE_URL
+        # 🔧 Absolute path resolve करा
+        key_path = os.getenv("FIREBASE_CRED_PATH")
+        key_path = os.path.abspath(key_path)
 
-    def push_lead(self, lead_data):
-        if not self.url:
-            print("❌ FIREBASE_URL .env मध्ये सेट केलेले नाही.")
+        db_url = os.getenv("FIREBASE_DB_URL")
+
+        if not firebase_admin._apps:
+            try:
+                cred = credentials.Certificate(key_path)
+                firebase_admin.initialize_app(cred, {
+                    'databaseURL': db_url
+                })
+                print("✅ Firebase कनेक्शन यशस्वी")
+            except Exception as e:
+                print(f"❌ Firebase init त्रुटी: {e}")
+
+    def push_lead_form(self, html_file):
+        if not os.path.exists(html_file):
+            print(f"❌ HTML फाईल सापडली नाही: {html_file}")
             return
 
-        response = requests.post(self.url, json=lead_data)
-        if response.status_code == 200:
-            print("✅ लीड Firebase मध्ये यशस्वीरित्या सेव्ह झाला.")
-        else:
-            print(f"❌ त्रुटी: {response.status_code} | {response.text}")
+        with open(html_file, "r", encoding="utf-8") as f:
+            form_html = f.read()
+
+        try:
+            ref = db.reference("/loan_forms/latest")
+            ref.set({
+                "form_html": form_html
+            })
+            print("✅ Lead Form Firebase वर पाठवला.")
+        except Exception as e:
+            print(f"❌ Firebase push त्रुटी: {e}")

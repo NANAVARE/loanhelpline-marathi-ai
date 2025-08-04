@@ -3,7 +3,7 @@ import csv
 
 class CSVLoanRateAgent:
     def __init__(self):
-        self.input_file = "data/loan_rates_data.csv"
+        self.input_file = "data/loan_rates.csv"
         self.output_file = "output/loan_rates.html"
 
     def generate_html_from_csv(self):
@@ -27,4 +27,4 @@ class CSVLoanRateAgent:
         with open(self.output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
-        print("📄 loan_rates.html (CSV वर आधारित) तयार झाला.")
+        print("✅ HTML टेबल तयार झाला: output/loan_rates.html")
